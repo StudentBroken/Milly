@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🎈 Milly's Birthday Countdown! 🕸️</title>
 
   <!-- Google Fonts -->
@@ -39,47 +39,44 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       min-height: 100vh;
-      min-height: -webkit-fill-available;
       background: var(--bg-color);
       font-family: var(--font-body);
       color: var(--text-color);
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
       position: relative;
       overflow-x: hidden;
-      padding: 20px 12px 60px 12px;
-      transition: background 0.3s ease;
+      padding: 40px 20px 60px 20px;
+      transition: background 0.35s ease;
     }
 
     /* Interactive Floating Speech Bubble */
     #toastNotification {
       position: fixed;
-      top: 15px;
+      top: 25px;
       left: 50%;
       transform: translateX(-50%) translateY(-80px);
       background: rgba(20, 20, 26, 0.95);
       color: #fff;
       border: 2px solid #E23636;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      padding: 10px 20px;
+      padding: 10px 24px;
       border-radius: 30px;
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: clamp(12px, 3.5vw, 13px);
+      font-size: 13px;
       font-weight: 700;
       z-index: 5000;
       pointer-events: none;
       transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
       opacity: 0;
       text-align: center;
-      max-width: 90vw;
-      white-space: normal;
+      white-space: nowrap;
     }
     #toastNotification.show {
       transform: translateX(-50%) translateY(0);
@@ -98,7 +95,266 @@
     }
 
     /* ========================================================
-       SPIDERWEBS & GARLAND
+       BALANCED RESPONSIVE GRID LAYOUT (Main + Side Wings)
+       ======================================================== */
+    .app-layout {
+      display: grid;
+      grid-template-columns: 210px minmax(320px, 580px) 210px;
+      gap: 25px;
+      align-items: center;
+      justify-content: center;
+      max-width: 1180px;
+      width: 100%;
+      z-index: 20;
+      position: relative;
+      margin-top: 15px;
+    }
+
+    .side-wing {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      z-index: 25;
+    }
+
+    .center-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    /* ========================================================
+       UNIFIED GAME CARDS & WIDGETS
+       ======================================================== */
+    .game-card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 2px solid #E23636;
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+      padding: 14px;
+      backdrop-filter: blur(10px);
+      user-select: none;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      display: none;
+      animation: popDropIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    .game-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px rgba(226, 54, 54, 0.25);
+    }
+
+    @keyframes popDropIn {
+      0% { transform: scale(0.6) translateY(20px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .widget-header {
+      font-size: 11px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      color: #E23636;
+      margin-bottom: 8px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* 1. Sept 1: Chiptune Synth */
+    .synth-btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .synth-btn {
+      background: #1e1e24;
+      color: #00ff00;
+      font-family: 'VT323', monospace;
+      font-size: 14px;
+      border: 1px solid #444;
+      padding: 6px 2px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: transform 0.1s, background 0.1s;
+    }
+    .synth-btn:hover { background: #E23636; color: #fff; transform: scale(1.04); }
+
+    /* 2. Sept 3: Scratch-Off Pass */
+    .scratch-container {
+      position: relative;
+      width: 100%;
+      height: 80px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .scratch-secret {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #ff758c, #ff7eb3);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px;
+      text-align: center;
+    }
+    #scratchCanvas {
+      position: absolute;
+      inset: 0;
+      cursor: crosshair;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 3. Sept 5: Polaroid Photobooth */
+    #polaroidWidget {
+      text-align: center;
+      cursor: pointer;
+    }
+    .polaroid-img-box {
+      width: 100%;
+      height: 120px;
+      background: linear-gradient(135deg, #ff758c, #ff7eb3);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      margin: 0 auto 8px auto;
+      overflow: hidden;
+      position: relative;
+    }
+    .polaroid-img-box img, .polaroid-img-box video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .polaroid-img-box video {
+      transform: scaleX(-1);
+    }
+    .polaroid-countdown-badge {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      color: #FFD700;
+      font-family: 'Outfit', sans-serif;
+      font-size: 48px;
+      font-weight: 900;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+    }
+
+    /* 4. Sept 8: Doodle Studio */
+    .doodle-canvas-box {
+      border: 2px dashed rgba(226, 54, 54, 0.4);
+      border-radius: 8px;
+      background: #ffffff;
+      margin: 6px 0;
+      cursor: crosshair;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+    }
+    #doodleCanvas {
+      width: 100%;
+      height: 105px;
+    }
+    .doodle-toolbar {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .color-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid #888;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .color-dot.active { transform: scale(1.3); border-color: #000; }
+    .doodle-stickers {
+      display: flex;
+      justify-content: space-around;
+      font-size: 16px;
+      margin-bottom: 6px;
+      cursor: pointer;
+    }
+    .doodle-dl-btn {
+      background: #E23636;
+      color: white;
+      border: none;
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      width: 100%;
+      box-shadow: 0 4px 10px rgba(226, 54, 54, 0.25);
+    }
+    .doodle-dl-btn:hover { background: #0077E6; }
+
+    /* 5. Sept 11: Top Floating Piñata & Spider Pete */
+    #pinataWidget {
+      position: fixed;
+      top: 20px;
+      left: 30px;
+      text-align: center;
+      cursor: pointer;
+      z-index: 22;
+      display: none;
+    }
+    .pinata-icon {
+      font-size: 50px;
+      animation: pinataSwing 3s ease-in-out infinite alternate;
+      transform-origin: top center;
+    }
+    @keyframes pinataSwing {
+      0% { transform: rotate(-12deg); }
+      100% { transform: rotate(12deg); }
+    }
+    .pinata-hp {
+      font-size: 10px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      color: #E23636;
+      background: rgba(255,255,255,0.95);
+      padding: 3px 8px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      margin-top: 4px;
+    }
+
+    #surprise-spider {
+      position: fixed;
+      top: 0;
+      right: min(60px, 8vw);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: spiderSway 3.2s ease-in-out infinite alternate;
+      transform-origin: top center;
+      z-index: 22;
+      cursor: pointer;
+    }
+    .spider-thread { width: 1.5px; height: 75px; background: rgba(80,80,80,0.7); }
+    .spider-body { font-size: 34px; }
+    @keyframes spiderSway {
+      0% { transform: rotate(-8deg); }
+      100% { transform: rotate(8deg); }
+    }
+
+    /* ========================================================
+       TOP SPIDERWEBS & BIRTHDAY GARLAND
        ======================================================== */
     .spider-frame {
       position: fixed;
@@ -111,8 +367,10 @@
 
     .corner-web {
       position: absolute;
-      width: min(180px, 28vw);
-      height: min(180px, 28vw);
+      width: min(200px, 30vw);
+      height: min(200px, 30vw);
+      max-width: 220px;
+      max-height: 220px;
     }
     .corner-web-left { top: 0; left: 0; }
     .corner-web-right { top: 0; right: 0; transform: scaleX(-1); }
@@ -140,9 +398,9 @@
     .pennant {
       width: 0;
       height: 0;
-      border-left: clamp(14px, 3vw, 20px) solid transparent;
-      border-right: clamp(14px, 3vw, 20px) solid transparent;
-      border-top: clamp(24px, 5vw, 36px) solid #E23636;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 36px solid #E23636;
       filter: drop-shadow(0 4px 6px rgba(0,0,0,0.12));
       animation: pennantWave 2.8s ease-in-out infinite alternate;
     }
@@ -155,37 +413,14 @@
       100% { transform: rotate(6deg); }
     }
 
-    /* Hanging Spider */
-    #surprise-spider {
-      position: fixed;
-      top: 0;
-      right: clamp(15px, 6vw, 70px);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      animation: spiderSway 3.2s ease-in-out infinite alternate;
-      transform-origin: top center;
-      z-index: 20;
-      cursor: pointer;
-    }
-    .spider-thread { width: 1.5px; height: clamp(50px, 10vh, 80px); background: rgba(80,80,80,0.7); }
-    .spider-body { font-size: clamp(26px, 6vw, 34px); }
-    @keyframes spiderSway {
-      0% { transform: rotate(-8deg); }
-      100% { transform: rotate(8deg); }
-    }
-
     /* ========================================================
-       MAIN CARD CONTAINER
+       MAIN CARD CONTAINER & ACCENTS
        ======================================================== */
     .card-wrapper {
       position: relative;
-      max-width: 620px;
       width: 100%;
-      z-index: 20;
       display: flex;
       justify-content: center;
-      margin-top: clamp(20px, 4vh, 40px);
     }
 
     .countdown-card {
@@ -195,7 +430,7 @@
       box-shadow: var(--card-shadow);
       backdrop-filter: blur(var(--backdrop-blur));
       -webkit-backdrop-filter: blur(var(--backdrop-blur));
-      padding: clamp(20px, 5vw, 34px) clamp(16px, 4vw, 28px);
+      padding: 32px 24px;
       width: 100%;
       text-align: center;
       position: relative;
@@ -206,15 +441,15 @@
     .card-popper {
       position: absolute;
       bottom: -18px;
-      font-size: clamp(32px, 7vw, 44px);
+      font-size: 44px;
       user-select: none;
       opacity: var(--decor-opacity);
       transition: opacity 0.4s ease;
       pointer-events: none;
       animation: popperPulse 1.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) infinite alternate;
     }
-    .card-popper-left { left: -10px; transform: rotate(-30deg); }
-    .card-popper-right { right: -10px; transform: scaleX(-1) rotate(-30deg); }
+    .card-popper-left { left: -18px; transform: rotate(-30deg); }
+    .card-popper-right { right: -18px; transform: scaleX(-1) rotate(-30deg); }
 
     @keyframes popperPulse {
       0% { transform: scale(1) rotate(-30deg); }
@@ -229,27 +464,28 @@
       color: white;
       font-family: Tahoma, 'Times New Roman', sans-serif;
       font-weight: bold;
-      font-size: 11px;
-      padding: 3px 6px;
+      font-size: 12px;
+      padding: 4px 8px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       user-select: none;
     }
 
-    .win95-buttons { display: flex; gap: 2px; }
+    .win95-buttons { display: flex; gap: 3px; }
     .win95-btn {
       background: #c0c0c0;
       border: 2px outset #ffffff;
-      font-size: 9px;
+      font-size: 10px;
       font-weight: bold;
-      width: 14px;
-      height: 12px;
+      width: 16px;
+      height: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #000;
+      cursor: pointer;
     }
 
     .retro-marquee {
@@ -258,26 +494,26 @@
       border: 2px dotted #000000;
       font-family: 'Comic Sans MS', cursive;
       font-weight: bold;
-      font-size: 12px;
-      padding: 2px 0;
-      margin-bottom: 10px;
+      font-size: 13px;
+      padding: 3px 0;
+      margin-bottom: 12px;
     }
 
     .hit-counter-box {
-      margin-top: 12px;
-      font-size: 10px;
+      margin-top: 15px;
+      font-size: 11px;
       font-family: "Courier New", monospace;
       background: #000;
       color: #00ff00;
       display: inline-block;
-      padding: 3px 8px;
+      padding: 4px 10px;
       border: 2px inset #808080;
     }
 
     .netscape-badge {
-      font-size: 9px;
+      font-size: 10px;
       color: #555;
-      margin-top: 4px;
+      margin-top: 6px;
       font-style: italic;
     }
 
@@ -286,19 +522,18 @@
        ======================================================== */
     h1 {
       font-family: var(--font-heading);
-      font-size: clamp(22px, 5.5vw, 38px);
+      font-size: clamp(24px, 5vw, 38px);
       font-weight: 900;
       color: var(--accent-red);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       line-height: 1.2;
-      cursor: pointer;
     }
 
     .sub-title {
       font-family: var(--font-body);
       font-size: clamp(13px, 3.5vw, 17px);
       color: var(--text-color);
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       font-weight: 600;
     }
 
@@ -310,15 +545,15 @@
     .timer-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: clamp(4px, 1.5vw, 10px);
-      margin: 15px 0;
+      gap: 10px;
+      margin: 18px 0;
     }
 
     .time-box {
       background: var(--box-bg);
       border: var(--box-border);
       border-radius: var(--card-radius);
-      padding: clamp(8px, 2.5vw, 14px) 2px;
+      padding: 14px 4px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -326,7 +561,7 @@
     }
 
     .time-number {
-      font-size: clamp(22px, 6vw, 44px);
+      font-size: clamp(24px, 5.5vw, 44px);
       font-weight: 900;
       font-family: var(--font-numbers);
       color: var(--number-color);
@@ -334,21 +569,21 @@
     }
 
     .time-label {
-      font-size: clamp(9px, 2.2vw, 11px);
+      font-size: 10px;
       text-transform: uppercase;
       font-weight: 800;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
       color: var(--accent-blue);
-      margin-top: 4px;
+      margin-top: 6px;
       font-family: var(--font-body);
     }
 
     .status-msg {
-      font-size: clamp(12px, 3vw, 14px);
-      margin-top: 12px;
+      font-size: 13px;
+      margin-top: 15px;
       font-family: var(--font-body);
       font-weight: 600;
-      min-height: 20px;
+      min-height: 24px;
     }
 
     /* ========================================================
@@ -356,7 +591,7 @@
        ======================================================== */
     .surprise-btn-container {
       display: none;
-      margin-top: 20px;
+      margin-top: 22px;
       animation: popBounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
 
@@ -369,27 +604,25 @@
       color: #ffffff;
       text-decoration: none;
       font-family: 'Outfit', sans-serif;
-      font-size: clamp(16px, 4.5vw, 22px);
+      font-size: clamp(16px, 4vw, 22px);
       font-weight: 900;
-      padding: 16px 32px;
+      padding: 16px 36px;
       border-radius: 50px;
       border: 3px solid #ffffff;
       box-shadow: 0 10px 30px rgba(226, 54, 54, 0.4), 0 0 25px rgba(255, 215, 0, 0.5);
       cursor: pointer;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       animation: pulseGlow 1.8s infinite alternate;
-      width: 100%;
-      max-width: 400px;
     }
 
     .big-surprise-btn:hover {
-      transform: scale(1.04) translateY(-2px);
+      transform: scale(1.06) translateY(-2px);
       box-shadow: 0 14px 40px rgba(226, 54, 54, 0.5), 0 0 35px rgba(255, 215, 0, 0.7);
     }
 
     @keyframes pulseGlow {
       0% { transform: scale(1); }
-      100% { transform: scale(1.02); }
+      100% { transform: scale(1.03); }
     }
 
     @keyframes popBounceIn {
@@ -398,273 +631,11 @@
     }
 
     /* ========================================================
-       RESPONSIVE INTERACTIVE GAMES & STUDIOS
-       ======================================================== */
-    .mobile-studios-hub {
-      width: 100%;
-      max-width: 620px;
-      margin-top: 25px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      z-index: 20;
-    }
-
-    .hub-title {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--accent-red);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .game-widget {
-      user-select: none;
-      display: none;
-      animation: popDropIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-      background: rgba(255, 255, 255, 0.94);
-      border: 2px solid #E23636;
-      border-radius: 18px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.18);
-      padding: 14px;
-      backdrop-filter: blur(10px);
-      width: 100%;
-      max-width: 320px;
-      text-align: center;
-    }
-
-    /* Desktop View Floating Positioning (>= 920px) */
-    @media (min-width: 920px) {
-      .mobile-studios-hub {
-        position: static;
-        margin: 0;
-      }
-      .hub-title { display: none; }
-
-      #synthWidget {
-        position: fixed;
-        top: 25px;
-        left: 25px;
-        width: 175px;
-        transform: rotate(-3deg);
-      }
-      #scratchWidget {
-        position: fixed;
-        bottom: 25px;
-        left: 25px;
-        width: 195px;
-        transform: rotate(-2deg);
-      }
-      #polaroidWidget {
-        position: fixed;
-        top: 38%;
-        left: 25px;
-        transform: rotate(4deg) scale(1.1);
-        transform-origin: top left;
-        width: 145px;
-      }
-      #doodleWidget {
-        position: fixed;
-        top: 32%;
-        right: 25px;
-        width: 210px;
-        transform: rotate(-3deg);
-      }
-      #pinataWidget {
-        position: fixed;
-        top: 70px;
-        right: 40px;
-        width: auto;
-        background: transparent;
-        border: none;
-        box-shadow: none;
-      }
-    }
-
-    /* Mobile / Tablet Styling (< 920px) */
-    @media (max-width: 919px) {
-      .game-widget {
-        position: static !important;
-        transform: none !important;
-      }
-    }
-
-    /* 1. Synth Soundboard */
-    .widget-header {
-      font-size: 12px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 800;
-      color: #E23636;
-      margin-bottom: 8px;
-    }
-    .synth-btn-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-    }
-    .synth-btn {
-      background: #1e1e24;
-      color: #00ff00;
-      font-family: 'VT323', monospace;
-      font-size: 15px;
-      border: 1px solid #555;
-      padding: 8px 4px;
-      border-radius: 8px;
-      cursor: pointer;
-      text-align: center;
-      transition: transform 0.1s, background 0.1s;
-    }
-    .synth-btn:active { background: #E23636; color: #fff; transform: scale(0.95); }
-
-    /* 2. Scratch-Off */
-    .scratch-container {
-      position: relative;
-      width: 170px;
-      height: 80px;
-      margin: 4px auto 0 auto;
-      border-radius: 8px;
-      overflow: hidden;
-      touch-action: none; /* Prevents scroll while scratching */
-    }
-    .scratch-secret {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, #ff758c, #ff7eb3);
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 4px;
-      text-align: center;
-    }
-    #scratchCanvas {
-      position: absolute;
-      inset: 0;
-      cursor: crosshair;
-      touch-action: none;
-    }
-
-    /* 3. Polaroid Frame */
-    .polaroid-img-box {
-      width: 130px;
-      height: 120px;
-      background: linear-gradient(135deg, #ff758c, #ff7eb3);
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 38px;
-      margin: 0 auto 6px auto;
-      overflow: hidden;
-      position: relative;
-    }
-    .polaroid-img-box img, .polaroid-img-box video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .polaroid-img-box video {
-      transform: scaleX(-1);
-    }
-    .polaroid-countdown-badge {
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      color: #FFD700;
-      font-family: 'Outfit', sans-serif;
-      font-size: 48px;
-      font-weight: 900;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      text-shadow: 0 4px 15px rgba(0,0,0,0.8);
-    }
-
-    /* 4. Doodle Studio */
-    .doodle-canvas-box {
-      border: 2px dashed rgba(226, 54, 54, 0.4);
-      border-radius: 8px;
-      background: #ffffff;
-      margin: 6px auto;
-      cursor: crosshair;
-      overflow: hidden;
-      width: 200px;
-      height: 125px;
-      touch-action: none; /* Prevents scroll while drawing */
-    }
-    #doodleCanvas {
-      touch-action: none;
-      display: block;
-    }
-    .doodle-toolbar {
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-      margin-bottom: 6px;
-    }
-    .color-dot {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      border: 1px solid #999;
-      cursor: pointer;
-    }
-    .color-dot.active { transform: scale(1.2); border: 2px solid #000; }
-    .doodle-stickers {
-      display: flex;
-      justify-content: space-around;
-      font-size: 18px;
-      margin-bottom: 6px;
-      cursor: pointer;
-    }
-    .doodle-dl-btn {
-      background: #E23636;
-      color: white;
-      border: none;
-      font-family: 'Outfit', sans-serif;
-      font-size: 12px;
-      font-weight: 800;
-      padding: 8px 14px;
-      border-radius: 20px;
-      cursor: pointer;
-      width: 100%;
-      box-shadow: 0 4px 10px rgba(226, 54, 54, 0.3);
-    }
-    .doodle-dl-btn:active { background: #0077E6; }
-
-    /* 5. Piñata */
-    .pinata-icon {
-      font-size: 50px;
-      animation: pinataSwing 3s ease-in-out infinite alternate;
-      transform-origin: top center;
-    }
-    .pinata-hp {
-      font-size: 11px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 800;
-      color: #E23636;
-      background: rgba(255,255,255,0.9);
-      padding: 3px 10px;
-      border-radius: 12px;
-      display: inline-block;
-      margin-top: 4px;
-    }
-
-    /* ========================================================
-       SECRET DEBUG TOOLBAR ('1' -> '8' -> 'Enter' or Triple-Tap)
+       SECRET DEBUG TOOLBAR ('1' -> '8' -> 'Enter')
        ======================================================== */
     .test-toolbar {
       position: fixed;
-      bottom: 10px;
+      bottom: 15px;
       left: 50%;
       transform: translateX(-50%);
       background: rgba(18, 18, 24, 0.95);
@@ -672,25 +643,24 @@
       color: #ffffff;
       border: 2px solid #E23636;
       box-shadow: 0 10px 40px rgba(0,0,0,0.7);
-      border-radius: 25px;
-      padding: 10px 16px;
+      border-radius: 50px;
+      padding: 10px 22px;
       display: none;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 12px;
+      font-size: 13px;
       z-index: 9999;
-      width: min(94vw, 760px);
+      width: min(94vw, 780px);
       justify-content: space-between;
-      flex-wrap: wrap;
+      animation: popBounceIn 0.3s ease forwards;
     }
 
     .slider-wrapper {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       flex: 1;
-      min-width: 220px;
     }
 
     .test-toolbar input[type=range] {
@@ -704,26 +674,30 @@
       background: #E23636;
       color: white;
       font-weight: 800;
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 10px;
+      padding: 4px 12px;
+      border-radius: 14px;
+      font-size: 11px;
       white-space: nowrap;
-      min-width: 140px;
+      min-width: 155px;
       text-align: center;
     }
 
-    .quick-jump-btns { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+    .quick-jump-btns { display: flex; gap: 5px; }
     .quick-btn {
       background: #2c2c38;
       color: #fff;
       border: 1px solid #4a4a5e;
-      padding: 4px 7px;
-      border-radius: 6px;
-      font-size: 10px;
+      padding: 5px 8px;
+      border-radius: 8px;
+      font-size: 11px;
       font-weight: 700;
       cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
     }
-    .quick-btn:active { background: #E23636; }
+    .quick-btn:hover {
+      background: #E23636;
+      transform: scale(1.05);
+    }
 
     /* Confetti Canvas */
     #confetti-canvas {
@@ -735,6 +709,35 @@
       pointer-events: none;
       z-index: 1000;
     }
+
+    /* ========================================================
+       RESPONSIVE BREAKPOINTS (Mobile & Tablet)
+       ======================================================== */
+    @media (max-width: 900px) {
+      .app-layout {
+        grid-template-columns: 1fr;
+        max-width: 580px;
+        gap: 20px;
+      }
+      .side-wing {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+      #pinataWidget {
+        position: static;
+        margin: 0 auto;
+      }
+    }
+
+    @media (max-width: 540px) {
+      body { padding: 25px 12px 50px 12px; }
+      .side-wing { grid-template-columns: 1fr; }
+      .card-popper-left { left: 4px; bottom: -24px; }
+      .card-popper-right { right: 4px; bottom: -24px; }
+      .quick-jump-btns { display: none; }
+      .test-toolbar { padding: 8px 14px; }
+    }
   </style>
 </head>
 <body>
@@ -745,8 +748,158 @@
   <!-- Interactive Speech Toast Bubble -->
   <div id="toastNotification">✨ Milly triggered a surprise!</div>
 
-  <!-- Hidden Processing Elements -->
-  <canvas id="polaroidCanvas" style="display:none;"></canvas>
+  <!-- ========================================================
+       TOP PINATA & SPIDER PETE (Hanging elements)
+       ======================================================== */
+  <div id="pinataWidget" title="Click to hit the Piñata!">
+    <div class="pinata-icon" id="pinataIcon">🪅</div>
+    <div class="pinata-hp" id="pinataHpLabel">Hits Left: 5 🔨</div>
+  </div>
+
+  <div id="surprise-spider" title="Spidey Pete!">
+    <div class="spider-thread"></div>
+    <div class="spider-body">🕷️</div>
+  </div>
+
+  <!-- ========================================================
+       3-COLUMN BALANCED APP LAYOUT
+       ======================================================== -->
+  <div class="app-layout">
+
+    <!-- LEFT SIDE WING: Polaroid & Scratch Ticket -->
+    <div class="side-wing side-wing-left">
+      <!-- 1. Sept 5: Polaroid Photobooth -->
+      <div class="game-card" id="polaroidWidget" title="Click to snap Polaroid photo!">
+        <div class="widget-header">📸 Milly's Polaroid</div>
+        <div class="polaroid-img-box" id="polaroidImgBox">
+          <span id="cameraPlaceholderIcon">📸</span>
+          <div class="polaroid-countdown-badge" id="polaroidCountdownNum">5</div>
+        </div>
+        <span style="font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:800; color:#333;" id="polaroidLabel">
+          Milly ✨ Snap Me!
+        </span>
+      </div>
+
+      <!-- 2. Sept 3: Golden Scratch-Off Ticket -->
+      <div class="game-card" id="scratchWidget">
+        <div class="widget-header">🎟️ Scratch-Off Pass</div>
+        <div class="scratch-container">
+          <div class="scratch-secret">
+            <span>👑 QUEEN MILLY 👑</span>
+            <span style="font-size:9px; margin-top:2px;">Unlimited Birthday Wishes & Love! 💖</span>
+          </div>
+          <canvas id="scratchCanvas" width="165" height="75"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER STAGE: Main Countdown Card -->
+    <div class="center-stage">
+      <div class="card-wrapper">
+        <!-- Attached Corner Poppers -->
+        <div class="card-popper card-popper-left">🎉</div>
+        <div class="card-popper card-popper-right">🎉</div>
+
+        <main class="countdown-card" id="mainCard">
+          <!-- Version 1: Retro 90s Headers (Active Aug 31 - Sept 3) -->
+          <div id="retroWidgets">
+            <div id="retroWin95Bar" class="win95-titlebar">
+              <span>💾 C:\MILLY_BDAY\COUNTDOWN_v1.0.EXE</span>
+              <div class="win95-buttons">
+                <div class="win95-btn">_</div>
+                <div class="win95-btn">□</div>
+                <div class="win95-btn">X</div>
+              </div>
+            </div>
+
+            <div id="retroMarquee" class="retro-marquee">
+              <marquee id="marqueeText" scrollamount="5">⚡ WELCOME 2 MILLY'S BIRTHDAY PAGE (V1 SCRAPPY)! ⚡ UNDER CONSTRUCTION! ⚡</marquee>
+            </div>
+          </div>
+
+          <h1 id="mainTitle">🕷️ Milly's B-Day Countdown 🕸️</h1>
+          <p class="sub-title" id="subTitleText">
+            Time remaining until <span class="milly-highlight">Milly's Big Day</span> on Sept 14th!
+          </p>
+
+          <!-- Countdown Timer Grid -->
+          <div class="timer-grid" id="timerGrid">
+            <div class="time-box">
+              <span class="time-number" id="days">00</span>
+              <span class="time-label">Days</span>
+            </div>
+            <div class="time-box">
+              <span class="time-number" id="hours">00</span>
+              <span class="time-label">Hours</span>
+            </div>
+            <div class="time-box">
+              <span class="time-number" id="minutes">00</span>
+              <span class="time-label">Minutes</span>
+            </div>
+            <div class="time-box">
+              <span class="time-number" id="seconds">00</span>
+              <span class="time-label">Seconds</span>
+            </div>
+          </div>
+
+          <!-- BIG BIRTHDAY BUTTON (Appears Sept 14) -->
+          <div class="surprise-btn-container" id="surpriseBtnContainer">
+            <a href="surprise.html" class="big-surprise-btn" id="bigSurpriseBtn">
+              🎁 OPEN MILLY'S SURPRISE! ✨
+            </a>
+          </div>
+
+          <p class="status-msg" id="statusMessage">
+            🚧 <i>Version 1 Scrappy Mode active until Sept 3! Interactive tools unlock daily!</i> 💾
+          </p>
+
+          <!-- Version 1: Retro 90s Footer Badges -->
+          <div id="retroFooterBadges">
+            <div class="hit-counter-box" id="hitCounter">VISITOR COUNT: [ 0 0 0 8 3 1 ]</div>
+            <div class="netscape-badge">Best viewed with 256 Colors on Netscape Navigator 3.0</div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE WING: Doodle Studio & Chiptune Synth -->
+    <div class="side-wing side-wing-right">
+      <!-- 3. Sept 8: Spidey Doodle & Cake Studio -->
+      <div class="game-card" id="doodleWidget">
+        <div class="widget-header">🎨 Doodle Studio</div>
+        <div class="doodle-toolbar">
+          <div class="color-dot active" style="background:#E23636;" onclick="setDoodleColor('#E23636', this)"></div>
+          <div class="color-dot" style="background:#0077E6;" onclick="setDoodleColor('#0077E6', this)"></div>
+          <div class="color-dot" style="background:#FFD700;" onclick="setDoodleColor('#FFD700', this)"></div>
+          <div class="color-dot" style="background:#111111;" onclick="setDoodleColor('#111111', this)"></div>
+          <div class="color-dot" style="background:#ffffff; border:1px solid #ccc;" onclick="setDoodleColor('#ffffff', this)" title="Eraser"></div>
+        </div>
+        <div class="doodle-stickers">
+          <span onclick="stampDoodleSticker('🕷️')">🕷️</span>
+          <span onclick="stampDoodleSticker('💖')">💖</span>
+          <span onclick="stampDoodleSticker('🎂')">🎂</span>
+          <span onclick="stampDoodleSticker('✨')">✨</span>
+          <span onclick="clearDoodleCanvas()" title="Clear canvas">🗑️</span>
+        </div>
+        <div class="doodle-canvas-box">
+          <canvas id="doodleCanvas" width="180" height="105"></canvas>
+        </div>
+        <button class="doodle-dl-btn" onclick="downloadDoodleArt()">Save & Download 💾</button>
+      </div>
+
+      <!-- 4. Sept 1: 8-Bit Web-Audio Synth Soundboard -->
+      <div class="game-card" id="synthWidget">
+        <div class="widget-header">🎵 Chiptune Box</div>
+        <div class="synth-btn-grid">
+          <button class="synth-btn" onclick="playSynthNote(261.6, 'square')">SPIDEY</button>
+          <button class="synth-btn" onclick="playSynthNote(329.6, 'sawtooth')">COIN ⭐</button>
+          <button class="synth-btn" onclick="playSynthNote(392.0, 'triangle')">BASS 🎸</button>
+          <button class="synth-btn" onclick="playBirthdayJingle()">JINGLE 🎂</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
 
   <!-- ==========================================
        TOP SPIDERWEBS (Aug 31 to Sept 11)
@@ -773,12 +926,6 @@
     </svg>
   </div>
 
-  <!-- Hanging Spider Pete -->
-  <div id="surprise-spider" title="Spidey Pete!">
-    <div class="spider-thread"></div>
-    <div class="spider-body">🕷️</div>
-  </div>
-
   <!-- ==========================================
        TOP BIRTHDAY GARLAND (Sept 12-14)
        ========================================== -->
@@ -791,156 +938,15 @@
     </div>
   </div>
 
-  <!-- ==========================================
-       MAIN COUNTDOWN CARD
-       ========================================== -->
-  <div class="card-wrapper">
-    <!-- Attached Corner Poppers -->
-    <div class="card-popper card-popper-left">🎉</div>
-    <div class="card-popper card-popper-right">🎉</div>
-
-    <main class="countdown-card" id="mainCard">
-      <!-- Version 1: Retro 90s Headers (Active Aug 31 - Sept 3) -->
-      <div id="retroWidgets">
-        <div id="retroWin95Bar" class="win95-titlebar">
-          <span>💾 C:\MILLY_BDAY\COUNTDOWN.EXE</span>
-          <div class="win95-buttons">
-            <div class="win95-btn">_</div>
-            <div class="win95-btn">□</div>
-            <div class="win95-btn">X</div>
-          </div>
-        </div>
-
-        <div id="retroMarquee" class="retro-marquee">
-          <marquee id="marqueeText" scrollamount="4">⚡ WELCOME 2 MILLY'S BIRTHDAY PAGE (V1 SCRAPPY)! ⚡ UNDER CONSTRUCTION! ⚡</marquee>
-        </div>
-      </div>
-
-      <h1 id="mainTitle" title="Triple tap to toggle secret debug slider!">🕷️ Milly's B-Day Countdown 🕸️</h1>
-      <p class="sub-title" id="subTitleText">
-        Time remaining until <span class="milly-highlight">Milly's Big Day</span> on Sept 14th!
-      </p>
-
-      <!-- Countdown Timer Grid -->
-      <div class="timer-grid" id="timerGrid">
-        <div class="time-box">
-          <span class="time-number" id="days">00</span>
-          <span class="time-label">Days</span>
-        </div>
-        <div class="time-box">
-          <span class="time-number" id="hours">00</span>
-          <span class="time-label">Hours</span>
-        </div>
-        <div class="time-box">
-          <span class="time-number" id="minutes">00</span>
-          <span class="time-label">Mins</span>
-        </div>
-        <div class="time-box">
-          <span class="time-number" id="seconds">00</span>
-          <span class="time-label">Secs</span>
-        </div>
-      </div>
-
-      <!-- BIG BIRTHDAY BUTTON (Appears Sept 14) -->
-      <div class="surprise-btn-container" id="surpriseBtnContainer">
-        <a href="surprise.html" class="big-surprise-btn" id="bigSurpriseBtn">
-          🎁 OPEN MILLY'S SURPRISE! ✨
-        </a>
-      </div>
-
-      <p class="status-msg" id="statusMessage">
-        🚧 <i>Version 1 Scrappy Mode active until Sept 3! Interactive studios unlock daily!</i> 💾
-      </p>
-
-      <!-- Version 1: Retro 90s Footer Badges -->
-      <div id="retroFooterBadges">
-        <div class="hit-counter-box" id="hitCounter">VISITOR COUNT: [ 0 0 0 8 3 1 ]</div>
-        <div class="netscape-badge">Best viewed with 256 Colors on Netscape Navigator 3.0</div>
-      </div>
-    </main>
-  </div>
-
-  <!-- ========================================================
-       MILLY'S INTERACTIVE STUDIOS & GAMES (Responsive Hub)
-       ======================================================== -->
-  <div class="mobile-studios-hub">
-    <div class="hub-title" id="hubTitleLabel">🎮 Milly's Unlocked Studios</div>
-
-    <!-- 1. Sept 1: 8-Bit Web-Audio Synth Soundboard -->
-    <div class="game-widget" id="synthWidget">
-      <div class="widget-header">🎵 Milly's Chiptune Box</div>
-      <div class="synth-btn-grid">
-        <button class="synth-btn" onclick="playSynthNote(261.6, 'square')">SPIDEY</button>
-        <button class="synth-btn" onclick="playSynthNote(329.6, 'sawtooth')">COIN ⭐</button>
-        <button class="synth-btn" onclick="playSynthNote(392.0, 'triangle')">BASS 🎸</button>
-        <button class="synth-btn" onclick="playBirthdayJingle()">JINGLE 🎂</button>
-      </div>
-    </div>
-
-    <!-- 2. Sept 3: Golden Scratch-Off Ticket -->
-    <div class="game-widget" id="scratchWidget">
-      <div class="widget-header">🎟️ Scratch-Off Birthday Pass</div>
-      <div class="scratch-container">
-        <div class="scratch-secret">
-          <span>👑 QUEEN MILLY 👑</span>
-          <span style="font-size:9px; margin-top:2px;">Unlimited Birthday Wishes & Love! 💖</span>
-        </div>
-        <canvas id="scratchCanvas" width="170" height="80"></canvas>
-      </div>
-    </div>
-
-    <!-- 3. Sept 5: Polaroid Photobooth -->
-    <div class="game-widget" id="polaroidWidget" title="Tap to snap Polaroid photo!">
-      <div class="widget-header">📸 Milly's Polaroid Booth</div>
-      <div class="polaroid-img-box" id="polaroidImgBox">
-        <span id="cameraPlaceholderIcon">📸</span>
-        <div class="polaroid-countdown-badge" id="polaroidCountdownNum">5</div>
-      </div>
-      <span style="font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:800; color:#333;" id="polaroidLabel">
-        Tap to Snap Photo! ✨
-      </span>
-    </div>
-
-    <!-- 4. Sept 8: Spidey Doodle & Cake Studio -->
-    <div class="game-widget" id="doodleWidget">
-      <div class="widget-header">🎨 Spidey Doodle Studio</div>
-      <div class="doodle-toolbar">
-        <div class="color-dot active" style="background:#E23636;" onclick="setDoodleColor('#E23636', this)"></div>
-        <div class="color-dot" style="background:#0077E6;" onclick="setDoodleColor('#0077E6', this)"></div>
-        <div class="color-dot" style="background:#FFD700;" onclick="setDoodleColor('#FFD700', this)"></div>
-        <div class="color-dot" style="background:#111111;" onclick="setDoodleColor('#111111', this)"></div>
-        <div class="color-dot" style="background:#ffffff; border:1px solid #ccc;" onclick="setDoodleColor('#ffffff', this)" title="Eraser"></div>
-      </div>
-      <div class="doodle-stickers">
-        <span onclick="stampDoodleSticker('🕷️')">🕷️</span>
-        <span onclick="stampDoodleSticker('💖')">💖</span>
-        <span onclick="stampDoodleSticker('🎂')">🎂</span>
-        <span onclick="stampDoodleSticker('✨')">✨</span>
-        <span onclick="clearDoodleCanvas()" title="Clear canvas">🗑️</span>
-      </div>
-      <div class="doodle-canvas-box">
-        <canvas id="doodleCanvas" width="200" height="125"></canvas>
-      </div>
-      <button class="doodle-dl-btn" onclick="downloadDoodleArt()">Save & Download Drawing 💾</button>
-    </div>
-
-    <!-- 5. Sept 11: Interactive Smash Piñata -->
-    <div class="game-widget" id="pinataWidget" title="Tap to hit the Piñata!">
-      <div class="widget-header">🪅 Birthday Smash Piñata</div>
-      <div class="pinata-icon" id="pinataIcon">🪅</div>
-      <div class="pinata-hp" id="pinataHpLabel">Hits Left: 5 🔨</div>
-    </div>
-  </div>
-
   <!-- Fullscreen Confetti Canvas Engine -->
   <canvas id="confetti-canvas"></canvas>
 
   <!-- ==========================================
-       SECRET DEBUG TOOLBAR ('1' -> '8' -> 'Enter' or Triple-Tap)
+       SECRET DEBUG TOOLBAR ('1' -> '8' -> 'Enter')
        ========================================== -->
   <aside class="test-toolbar" id="testToolbar">
     <div class="slider-wrapper">
-      <span style="font-weight: 800; white-space: nowrap;">🛠️ Debug:</span>
+      <span style="font-weight: 800; white-space: nowrap;">🛠️ Secret Debug:</span>
       <input type="range" id="stageSlider" min="0" max="14" step="0.02" value="0" />
       <span class="stage-badge" id="stageLabel">Aug 31 (v1 Scrappy)</span>
     </div>
@@ -952,7 +958,7 @@
       <button class="quick-btn" onclick="jumpToStage(8)">Sept 8</button>
       <button class="quick-btn" onclick="jumpToStage(11)">Sept 11</button>
       <button class="quick-btn" onclick="jumpToStage(14)">Sept 14 🎉</button>
-      <button class="quick-btn" style="background:#E23636;" onclick="triggerBirthdayCelebration()">Blast</button>
+      <button class="quick-btn" style="background:#E23636;" onclick="triggerBirthdayCelebration()">Party Blast</button>
     </div>
   </aside>
 
@@ -976,7 +982,6 @@
     function playSynthNote(freq, type="square", duration=0.18) {
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = type;
@@ -1010,32 +1015,29 @@
 
     function initScratchTicket() {
       scratchCtx.globalCompositeOperation = "source-over";
-      const grad = scratchCtx.createLinearGradient(0, 0, 170, 80);
+      const grad = scratchCtx.createLinearGradient(0, 0, 165, 75);
       grad.addColorStop(0, "#C0C0C0");
       grad.addColorStop(0.5, "#E8E8E8");
       grad.addColorStop(1, "#A8A8A8");
       scratchCtx.fillStyle = grad;
-      scratchCtx.fillRect(0, 0, 170, 80);
+      scratchCtx.fillRect(0, 0, 165, 75);
 
       scratchCtx.fillStyle = "#E23636";
       scratchCtx.font = "bold 11px 'Plus Jakarta Sans', sans-serif";
       scratchCtx.textAlign = "center";
-      scratchCtx.fillText("✨ SCRATCH ME! ✨", 85, 45);
+      scratchCtx.fillText("✨ SCRATCH ME! ✨", 82, 42);
     }
     initScratchTicket();
 
     function scratch(e) {
       if (!isScratching) return;
-      if (e.cancelable) e.preventDefault();
       const rect = scratchCanvas.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
+      const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+      const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
 
       scratchCtx.globalCompositeOperation = "destination-out";
       scratchCtx.beginPath();
-      scratchCtx.arc(x, y, 16, 0, Math.PI * 2);
+      scratchCtx.arc(x, y, 14, 0, Math.PI * 2);
       scratchCtx.fill();
 
       if (!scratchRevealed) {
@@ -1049,12 +1051,12 @@
     scratchCanvas.addEventListener("mousedown", () => isScratching = true);
     window.addEventListener("mouseup", () => isScratching = false);
     scratchCanvas.addEventListener("mousemove", scratch);
-    scratchCanvas.addEventListener("touchstart", (e) => { isScratching = true; scratch(e); }, { passive: false });
+    scratchCanvas.addEventListener("touchstart", (e) => { isScratching = true; scratch(e); });
     window.addEventListener("touchend", () => isScratching = false);
-    scratchCanvas.addEventListener("touchmove", scratch, { passive: false });
+    scratchCanvas.addEventListener("touchmove", scratch);
 
     /* ========================================================
-       4. IN-FRAME CAMERA PHOTOBOOTH (Sept 5)
+       4. IN-FRAME CAMERA PHOTOBOOTH + LOCALSTORAGE (Sept 5)
        ======================================================== */
     let isCameraSnapping = false;
 
@@ -1071,7 +1073,7 @@
       let videoEl = null;
 
       try {
-        showToast("📸 <i>Live camera started... Strike a cute pose, Milly!</i> ✨");
+        showToast("📸 <i>Live camera started in your frame... Strike a pose, Milly!</i> ✨");
 
         stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
@@ -1156,6 +1158,10 @@
 
         const photoDataUrl = canvas.toDataURL("image/png");
 
+        try {
+          localStorage.setItem("milly_polaroid_photo", photoDataUrl);
+        } catch(e) { console.warn("Storage full", e); }
+
         const dlLink = document.createElement("a");
         dlLink.href = photoDataUrl;
         dlLink.download = "milly-birthday-polaroid-2026.png";
@@ -1191,7 +1197,7 @@
     });
 
     /* ========================================================
-       5. SPIDEY DOODLE & CAKE STUDIO (Sept 8)
+       5. SPIDEY DOODLE & CAKE STUDIO + LOCALSTORAGE (Sept 8)
        ======================================================== */
     const doodleCanvas = document.getElementById("doodleCanvas");
     const doodleCtx = doodleCanvas.getContext("2d");
@@ -1199,7 +1205,7 @@
     let doodleColor = "#E23636";
 
     doodleCtx.fillStyle = "#FFFFFF";
-    doodleCtx.fillRect(0, 0, 200, 125);
+    doodleCtx.fillRect(0, 0, 180, 105);
     doodleCtx.lineWidth = 3;
     doodleCtx.lineCap = "round";
 
@@ -1209,52 +1215,48 @@
       el.classList.add("active");
     }
 
-    function getDoodlePos(e) {
-      const rect = doodleCanvas.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      return {
-        x: clientX - rect.left,
-        y: clientY - rect.top
-      };
-    }
-
     function startDoodling(e) {
       isDoodling = true;
-      const pos = getDoodlePos(e);
-      doodleCtx.beginPath();
-      doodleCtx.moveTo(pos.x, pos.y);
       drawDoodle(e);
     }
     function stopDoodling() {
       isDoodling = false;
       doodleCtx.beginPath();
+      try {
+        localStorage.setItem("milly_doodle_data", doodleCanvas.toDataURL());
+      } catch(e){}
     }
     function drawDoodle(e) {
       if (!isDoodling) return;
-      if (e.cancelable) e.preventDefault();
-      const pos = getDoodlePos(e);
+      const rect = doodleCanvas.getBoundingClientRect();
+      const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+      const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+
       doodleCtx.strokeStyle = doodleColor;
-      doodleCtx.lineTo(pos.x, pos.y);
+      doodleCtx.lineTo(x, y);
       doodleCtx.stroke();
+      doodleCtx.beginPath();
+      doodleCtx.moveTo(x, y);
     }
 
     doodleCanvas.addEventListener("mousedown", startDoodling);
     doodleCanvas.addEventListener("mouseup", stopDoodling);
     doodleCanvas.addEventListener("mousemove", drawDoodle);
-    doodleCanvas.addEventListener("touchstart", (e) => { startDoodling(e); }, { passive: false });
+    doodleCanvas.addEventListener("touchstart", (e) => { startDoodling(e); e.preventDefault(); });
     doodleCanvas.addEventListener("touchend", stopDoodling);
-    doodleCanvas.addEventListener("touchmove", (e) => { drawDoodle(e); }, { passive: false });
+    doodleCanvas.addEventListener("touchmove", (e) => { drawDoodle(e); e.preventDefault(); });
 
     function stampDoodleSticker(sticker) {
-      doodleCtx.font = "24px sans-serif";
-      doodleCtx.fillText(sticker, 15 + Math.random() * 140, 30 + Math.random() * 65);
-      showToast(`🎨 <i>Stamped a cute ${sticker} on your canvas!</i>`);
+      doodleCtx.font = "22px sans-serif";
+      doodleCtx.fillText(sticker, 15 + Math.random() * 120, 25 + Math.random() * 60);
+      showToast(`🎨 <i>Stamped a cute ${sticker} on your birthday canvas!</i>`);
+      try { localStorage.setItem("milly_doodle_data", doodleCanvas.toDataURL()); } catch(e){}
     }
 
     function clearDoodleCanvas() {
       doodleCtx.fillStyle = "#FFFFFF";
-      doodleCtx.fillRect(0, 0, 200, 125);
+      doodleCtx.fillRect(0, 0, 180, 105);
+      try { localStorage.removeItem("milly_doodle_data"); } catch(e){}
       showToast("🗑️ <i>Canvas cleared! Ready for new art!</i>");
     }
 
@@ -1306,12 +1308,12 @@
       if (pinataHits > 0) {
         label.textContent = `Hits Left: ${pinataHits} 🔨`;
         showToast(`🪅 *SMACK!* <i>Keep hitting the piñata! (${pinataHits} hits left)</i>`);
-        fireAngledCannon(window.innerWidth - 50, 120, -120, 20, ["#FFD700", "#FF1493"]);
+        fireAngledCannon(80, 120, 60, 20, ["#FFD700", "#FF1493"]);
       } else {
         label.textContent = `💥 BURST! 🍬`;
         icon.textContent = `💥`;
         showToast(`🎉 <b>SMASHED! Candy and treats showering for Milly!</b> 🍬🍭🍫`);
-        fireAngledCannon(window.innerWidth - 50, 120, -120, 90, ["#FF1493", "#00E5FF", "#FFD700", "#76FF03", "#FF6D00"]);
+        fireAngledCannon(80, 120, 60, 90, ["#FF1493", "#00E5FF", "#FFD700", "#76FF03", "#FF6D00"]);
         setTimeout(() => {
           pinataHits = 5;
           icon.textContent = `🪅`;
@@ -1330,7 +1332,30 @@
     });
 
     /* ========================================================
-       7. PROGRESSION VISIBILITY ENGINE (Unlocks games day-by-day)
+       7. RESTORE SAVED MEMORIES FROM LOCALSTORAGE ON STARTUP
+       ======================================================== */
+    function loadSavedMemories() {
+      const savedPhoto = localStorage.getItem("milly_polaroid_photo");
+      if (savedPhoto) {
+        const box = document.getElementById("polaroidImgBox");
+        const label = document.getElementById("polaroidLabel");
+        if (box) box.innerHTML = `<img src="${savedPhoto}" alt="Milly Photo" />`;
+        if (label) label.textContent = "Milly ✨ Snapped!";
+      }
+
+      const savedDoodle = localStorage.getItem("milly_doodle_data");
+      if (savedDoodle) {
+        const img = new Image();
+        img.onload = () => {
+          doodleCtx.drawImage(img, 0, 0);
+        };
+        img.src = savedDoodle;
+      }
+    }
+    loadSavedMemories();
+
+    /* ========================================================
+       8. PROGRESSION VISIBILITY ENGINE
        ======================================================== */
     function updateGameWidgets(dayVal) {
       document.getElementById("synthWidget").style.display = dayVal >= 1.0 ? "block" : "none";
@@ -1338,15 +1363,10 @@
       document.getElementById("polaroidWidget").style.display = dayVal >= 5.0 ? "block" : "none";
       document.getElementById("doodleWidget").style.display = dayVal >= 8.0 ? "block" : "none";
       document.getElementById("pinataWidget").style.display = dayVal >= 11.0 ? "block" : "none";
-      
-      const hubTitle = document.getElementById("hubTitleLabel");
-      if (hubTitle) {
-        hubTitle.style.display = dayVal >= 1.0 ? "flex" : "none";
-      }
     }
 
     /* ========================================================
-       8. COUNTDOWN & CELEBRATION (NO AUTO-REDIRECT)
+       9. COUNTDOWN & CELEBRATION (NO AUTO-REDIRECT)
        ======================================================== */
     const currentYear = new Date().getFullYear();
     const targetDate = new Date(currentYear, 8, 14, 0, 0, 0); // Sept 14, 00:00:00
@@ -1386,7 +1406,7 @@
     checkLiveCountdown();
 
     /* ========================================================
-       9. PROGRESSIVE EVOLUTION & CONTINUOUS ENGINE
+       10. PROGRESSIVE EVOLUTION & CONTINUOUS ENGINE
        ======================================================== */
     const stageSlider = document.getElementById("stageSlider");
     const stageLabel = document.getElementById("stageLabel");
@@ -1457,9 +1477,9 @@
 
         mainTitle.textContent = "🕷️ Milly's B-Day Countdown 🕸️";
         if (val < 1.0) {
-          statusMessage.innerHTML = "🚧 <i>Version 1 Scrappy Mode active! Studios unlock daily below!</i> 💾";
+          statusMessage.innerHTML = "🚧 <i>Version 1 Scrappy Mode active! Interactive toys unlock daily!</i> 💾";
         } else {
-          statusMessage.innerHTML = `🚧 <i>Sept ${Math.floor(val)}: Scrappy v1 active. Play with the studios below!</i> 💾`;
+          statusMessage.innerHTML = `🚧 <i>Sept ${Math.floor(val)}: Scrappy v1 active. Try the unlocked mini-games!</i> 💾`;
         }
       }
       // ========================================================
@@ -1544,7 +1564,7 @@
     };
 
     /* ========================================================
-       10. SECRET KEY SEQUENCE & TRIPLE TAP UNLOCK
+       11. SECRET KEY SEQUENCE DETECTOR ('1' -> '8' -> 'Enter')
        ======================================================== */
     let keySeq = [];
     let keySeqTimeout = null;
@@ -1558,7 +1578,6 @@
       }
     }
 
-    // Keyboard sequence '1' -> '8' -> 'Enter'
     window.addEventListener("keydown", (e) => {
       clearTimeout(keySeqTimeout);
       keySeqTimeout = setTimeout(() => { keySeq = []; }, 3500);
@@ -1575,22 +1594,8 @@
       }
     });
 
-    // Mobile Triple-Tap on Title to toggle debug
-    let titleTapCount = 0;
-    let titleTapTimeout = null;
-    document.getElementById("mainTitle").addEventListener("click", () => {
-      titleTapCount++;
-      clearTimeout(titleTapTimeout);
-      if (titleTapCount >= 3) {
-        toggleDebugMenu();
-        titleTapCount = 0;
-      } else {
-        titleTapTimeout = setTimeout(() => { titleTapCount = 0; }, 600);
-      }
-    });
-
     /* ========================================================
-       11. CANNON-ANGLED CONFETTI ENGINE (Ribbons, Hearts & Stars)
+       12. CANNON-ANGLED CONFETTI ENGINE (Ribbons, Hearts & Stars)
        ======================================================== */
     const canvas = document.getElementById("confetti-canvas");
     const ctx = canvas.getContext("2d");
@@ -1696,7 +1701,7 @@
 
     // Card click sparkler
     document.getElementById("mainCard").addEventListener("click", (e) => {
-      if (e.target.closest("#bigSurpriseBtn") || e.target.closest(".game-widget")) return;
+      if (e.target.closest("#bigSurpriseBtn") || e.target.closest(".game-card")) return;
       fireAngledCannon(e.clientX, e.clientY, -90, 25);
       renderConfetti();
     });
