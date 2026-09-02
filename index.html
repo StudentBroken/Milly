@@ -964,11 +964,25 @@
 
   <script>
     /* ========================================================
+       SAFE LOCALSTORAGE HELPERS
+       ======================================================== */
+    function safeGet(key) {
+      try { return localStorage.getItem(key); } catch(e) { return null; }
+    }
+    function safeSet(key, val) {
+      try { localStorage.setItem(key, val); } catch(e) {}
+    }
+    function safeRemove(key) {
+      try { localStorage.removeItem(key); } catch(e) {}
+    }
+
+    /* ========================================================
        1. INTERACTIVE TOAST HELPER
        ======================================================== */
     let toastTimer = null;
     function showToast(msg) {
       const toast = document.getElementById("toastNotification");
+      if (!toast) return;
       toast.innerHTML = msg;
       toast.classList.add("show");
       clearTimeout(toastTimer);
@@ -976,7 +990,57 @@
     }
 
     /* ========================================================
-       2. WEB-AUDIO CHIPTUNE SYNTH SOUNDBOARD (Sept 1)
+       2. REWRITTEN BULLETPROOF COUNTDOWN LOGIC
+       ======================================================== */
+    const currentYear = new Date().getFullYear();
+    const targetDate = new Date(currentYear, 8, 14, 0, 0, 0); // Sept 14, 00:00:00
+    const startDate  = new Date(currentYear, 7, 31, 0, 0, 0); // Aug 31
+
+    let simulatedDate = null; // Used when scrubbing slider in debug mode
+    let birthdayTriggered = false;
+    let cannonInterval = null;
+
+    function updateCountdownDisplay() {
+      const now = simulatedDate || new Date();
+      const diff = targetDate.getTime() - now.getTime();
+
+      const daysEl = document.getElementById("days");
+      const hoursEl = document.getElementById("hours");
+      const minsEl = document.getElementById("minutes");
+      const secsEl = document.getElementById("seconds");
+
+      if (!daysEl || !hoursEl || !minsEl || !secsEl) return;
+
+      if (diff <= 0) {
+        daysEl.textContent = "00";
+        hoursEl.textContent = "00";
+        minsEl.textContent = "00";
+        secsEl.textContent = "00";
+        
+        if (!birthdayTriggered) {
+          triggerBirthdayCelebration();
+        }
+        return;
+      }
+
+      const totalSecs = Math.max(0, Math.floor(diff / 1000));
+      const d = Math.floor(totalSecs / (3600 * 24));
+      const h = Math.floor((totalSecs % (3600 * 24)) / 3600);
+      const m = Math.floor((totalSecs % 3600) / 60);
+      const s = Math.floor(totalSecs % 60);
+
+      daysEl.textContent = String(d).padStart(2, "0");
+      hoursEl.textContent = String(h).padStart(2, "0");
+      minsEl.textContent = String(m).padStart(2, "0");
+      secsEl.textContent = String(s).padStart(2, "0");
+    }
+
+    // Interval ticker
+    setInterval(updateCountdownDisplay, 1000);
+    updateCountdownDisplay();
+
+    /* ========================================================
+       3. WEB-AUDIO CHIPTUNE SYNTH SOUNDBOARD (Sept 1)
        ======================================================== */
     let audioCtx = null;
     function playSynthNote(freq, type="square", duration=0.18) {
@@ -1006,14 +1070,15 @@
     }
 
     /* ========================================================
-       3. INTERACTIVE GLITTER SCRATCH-OFF CARD (Sept 3)
+       4. INTERACTIVE GLITTER SCRATCH-OFF CARD (Sept 3)
        ======================================================== */
     const scratchCanvas = document.getElementById("scratchCanvas");
-    const scratchCtx = scratchCanvas.getContext("2d");
+    const scratchCtx = scratchCanvas ? scratchCanvas.getContext("2d") : null;
     let isScratching = false;
     let scratchRevealed = false;
 
     function initScratchTicket() {
+      if (!scratchCtx) return;
       scratchCtx.globalCompositeOperation = "source-over";
       const grad = scratchCtx.createLinearGradient(0, 0, 165, 75);
       grad.addColorStop(0, "#C0C0C0");
@@ -1030,7 +1095,7 @@
     initScratchTicket();
 
     function scratch(e) {
-      if (!isScratching) return;
+      if (!isScratching || !scratchCtx) return;
       const rect = scratchCanvas.getBoundingClientRect();
       const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
       const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
@@ -1048,15 +1113,17 @@
       }
     }
 
-    scratchCanvas.addEventListener("mousedown", () => isScratching = true);
-    window.addEventListener("mouseup", () => isScratching = false);
-    scratchCanvas.addEventListener("mousemove", scratch);
-    scratchCanvas.addEventListener("touchstart", (e) => { isScratching = true; scratch(e); });
-    window.addEventListener("touchend", () => isScratching = false);
-    scratchCanvas.addEventListener("touchmove", scratch);
+    if (scratchCanvas) {
+      scratchCanvas.addEventListener("mousedown", () => isScratching = true);
+      window.addEventListener("mouseup", () => isScratching = false);
+      scratchCanvas.addEventListener("mousemove", scratch);
+      scratchCanvas.addEventListener("touchstart", (e) => { isScratching = true; scratch(e); });
+      window.addEventListener("touchend", () => isScratching = false);
+      scratchCanvas.addEventListener("touchmove", scratch);
+    }
 
     /* ========================================================
-       4. IN-FRAME CAMERA PHOTOBOOTH + LOCALSTORAGE (Sept 5)
+       5. IN-FRAME CAMERA PHOTOBOOTH + LOCALSTORAGE (Sept 5)
        ======================================================== */
     let isCameraSnapping = false;
 
@@ -1158,9 +1225,7 @@
 
         const photoDataUrl = canvas.toDataURL("image/png");
 
-        try {
-          localStorage.setItem("milly_polaroid_photo", photoDataUrl);
-        } catch(e) { console.warn("Storage full", e); }
+        safeSet("milly_polaroid_photo", photoDataUrl);
 
         const dlLink = document.createElement("a");
         dlLink.href = photoDataUrl;
@@ -1191,23 +1256,28 @@
       }
     }
 
-    document.getElementById("polaroidWidget").addEventListener("click", (e) => {
-      e.stopPropagation();
-      snapRealPolaroidInFrame();
-    });
+    const polaroidWidget = document.getElementById("polaroidWidget");
+    if (polaroidWidget) {
+      polaroidWidget.addEventListener("click", (e) => {
+        e.stopPropagation();
+        snapRealPolaroidInFrame();
+      });
+    }
 
     /* ========================================================
-       5. SPIDEY DOODLE & CAKE STUDIO + LOCALSTORAGE (Sept 8)
+       6. SPIDEY DOODLE & CAKE STUDIO + LOCALSTORAGE (Sept 8)
        ======================================================== */
     const doodleCanvas = document.getElementById("doodleCanvas");
-    const doodleCtx = doodleCanvas.getContext("2d");
+    const doodleCtx = doodleCanvas ? doodleCanvas.getContext("2d") : null;
     let isDoodling = false;
     let doodleColor = "#E23636";
 
-    doodleCtx.fillStyle = "#FFFFFF";
-    doodleCtx.fillRect(0, 0, 180, 105);
-    doodleCtx.lineWidth = 3;
-    doodleCtx.lineCap = "round";
+    if (doodleCtx) {
+      doodleCtx.fillStyle = "#FFFFFF";
+      doodleCtx.fillRect(0, 0, 180, 105);
+      doodleCtx.lineWidth = 3;
+      doodleCtx.lineCap = "round";
+    }
 
     function setDoodleColor(color, el) {
       doodleColor = color;
@@ -1221,13 +1291,13 @@
     }
     function stopDoodling() {
       isDoodling = false;
-      doodleCtx.beginPath();
-      try {
-        localStorage.setItem("milly_doodle_data", doodleCanvas.toDataURL());
-      } catch(e){}
+      if (doodleCtx) {
+        doodleCtx.beginPath();
+        safeSet("milly_doodle_data", doodleCanvas.toDataURL());
+      }
     }
     function drawDoodle(e) {
-      if (!isDoodling) return;
+      if (!isDoodling || !doodleCtx) return;
       const rect = doodleCanvas.getBoundingClientRect();
       const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
       const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
@@ -1239,28 +1309,33 @@
       doodleCtx.moveTo(x, y);
     }
 
-    doodleCanvas.addEventListener("mousedown", startDoodling);
-    doodleCanvas.addEventListener("mouseup", stopDoodling);
-    doodleCanvas.addEventListener("mousemove", drawDoodle);
-    doodleCanvas.addEventListener("touchstart", (e) => { startDoodling(e); e.preventDefault(); });
-    doodleCanvas.addEventListener("touchend", stopDoodling);
-    doodleCanvas.addEventListener("touchmove", (e) => { drawDoodle(e); e.preventDefault(); });
+    if (doodleCanvas) {
+      doodleCanvas.addEventListener("mousedown", startDoodling);
+      doodleCanvas.addEventListener("mouseup", stopDoodling);
+      doodleCanvas.addEventListener("mousemove", drawDoodle);
+      doodleCanvas.addEventListener("touchstart", (e) => { startDoodling(e); e.preventDefault(); });
+      doodleCanvas.addEventListener("touchend", stopDoodling);
+      doodleCanvas.addEventListener("touchmove", (e) => { drawDoodle(e); e.preventDefault(); });
+    }
 
     function stampDoodleSticker(sticker) {
+      if (!doodleCtx) return;
       doodleCtx.font = "22px sans-serif";
       doodleCtx.fillText(sticker, 15 + Math.random() * 120, 25 + Math.random() * 60);
       showToast(`🎨 <i>Stamped a cute ${sticker} on your birthday canvas!</i>`);
-      try { localStorage.setItem("milly_doodle_data", doodleCanvas.toDataURL()); } catch(e){}
+      safeSet("milly_doodle_data", doodleCanvas.toDataURL());
     }
 
     function clearDoodleCanvas() {
+      if (!doodleCtx) return;
       doodleCtx.fillStyle = "#FFFFFF";
       doodleCtx.fillRect(0, 0, 180, 105);
-      try { localStorage.removeItem("milly_doodle_data"); } catch(e){}
+      safeRemove("milly_doodle_data");
       showToast("🗑️ <i>Canvas cleared! Ready for new art!</i>");
     }
 
     function downloadDoodleArt() {
+      if (!doodleCanvas) return;
       const offCanvas = document.createElement("canvas");
       offCanvas.width = 600;
       offCanvas.height = 500;
@@ -1294,48 +1369,54 @@
     }
 
     /* ========================================================
-       6. INTERACTIVE SMASH PIÑATA GAME (Sept 11)
+       7. INTERACTIVE SMASH PIÑATA GAME (Sept 11)
        ======================================================== */
     let pinataHits = 5;
-    document.getElementById("pinataWidget").addEventListener("click", (e) => {
-      e.stopPropagation();
-      const icon = document.getElementById("pinataIcon");
-      const label = document.getElementById("pinataHpLabel");
+    const pinataWidget = document.getElementById("pinataWidget");
+    if (pinataWidget) {
+      pinataWidget.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const icon = document.getElementById("pinataIcon");
+        const label = document.getElementById("pinataHpLabel");
 
-      pinataHits--;
-      playSynthNote(350 + (5 - pinataHits) * 80, "square", 0.15);
+        pinataHits--;
+        playSynthNote(350 + (5 - pinataHits) * 80, "square", 0.15);
 
-      if (pinataHits > 0) {
-        label.textContent = `Hits Left: ${pinataHits} 🔨`;
-        showToast(`🪅 *SMACK!* <i>Keep hitting the piñata! (${pinataHits} hits left)</i>`);
-        fireAngledCannon(80, 120, 60, 20, ["#FFD700", "#FF1493"]);
-      } else {
-        label.textContent = `💥 BURST! 🍬`;
-        icon.textContent = `💥`;
-        showToast(`🎉 <b>SMASHED! Candy and treats showering for Milly!</b> 🍬🍭🍫`);
-        fireAngledCannon(80, 120, 60, 90, ["#FF1493", "#00E5FF", "#FFD700", "#76FF03", "#FF6D00"]);
-        setTimeout(() => {
-          pinataHits = 5;
-          icon.textContent = `🪅`;
-          label.textContent = `Hits Left: 5 🔨`;
-        }, 4000);
-      }
-      renderConfetti();
-    });
+        if (pinataHits > 0) {
+          label.textContent = `Hits Left: ${pinataHits} 🔨`;
+          showToast(`🪅 *SMACK!* <i>Keep hitting the piñata! (${pinataHits} hits left)</i>`);
+          fireAngledCannon(80, 120, 60, 20, ["#FFD700", "#FF1493"]);
+        } else {
+          label.textContent = `💥 BURST! 🍬`;
+          icon.textContent = `💥`;
+          showToast(`🎉 <b>SMASHED! Candy and treats showering for Milly!</b> 🍬🍭🍫`);
+          fireAngledCannon(80, 120, 60, 90, ["#FF1493", "#00E5FF", "#FFD700", "#76FF03", "#FF6D00"]);
+          setTimeout(() => {
+            pinataHits = 5;
+            icon.textContent = `🪅`;
+            label.textContent = `Hits Left: 5 🔨`;
+          }, 4000);
+        }
+        renderConfetti();
+      });
+    }
 
     // Spidey Pete Hanging Click
-    document.getElementById("surprise-spider").addEventListener("click", (e) => {
-      e.stopPropagation();
-      showToast("🕷️ Spidey Pete: <i>'Hang in there Milly, your special day is getting closer!'</i> 🕸️");
-      fireAngledCannon(window.innerWidth - 70, 90, 90, 45, ["#E23636", "#0077E6", "#ffffff"]);
-      renderConfetti();
-    });
+    const spiderPete = document.getElementById("surprise-spider");
+    if (spiderPete) {
+      spiderPete.addEventListener("click", (e) => {
+        e.stopPropagation();
+        showToast("🕷️ Spidey Pete: <i>'Hang in there Milly, your special day is getting closer!'</i> 🕸️");
+        fireAngledCannon(window.innerWidth - 70, 90, 90, 45, ["#E23636", "#0077E6", "#ffffff"]);
+        renderConfetti();
+      });
+    }
 
     /* ========================================================
-       7. RESTORE SAVED MEMORIES FROM LOCALSTORAGE ON STARTUP
+       8. RESTORE SAVED MEMORIES FROM LOCALSTORAGE
        ======================================================== */
     function loadSavedMemories() {
-      const savedPhoto = localStorage.getItem("milly_polaroid_photo");
+      const savedPhoto = safeGet("milly_polaroid_photo");
       if (savedPhoto) {
         const box = document.getElementById("polaroidImgBox");
         const label = document.getElementById("polaroidLabel");
@@ -1343,8 +1424,8 @@
         if (label) label.textContent = "Milly ✨ Snapped!";
       }
 
-      const savedDoodle = localStorage.getItem("milly_doodle_data");
-      if (savedDoodle) {
+      const savedDoodle = safeGet("milly_doodle_data");
+      if (savedDoodle && doodleCtx) {
         const img = new Image();
         img.onload = () => {
           doodleCtx.drawImage(img, 0, 0);
@@ -1355,59 +1436,22 @@
     loadSavedMemories();
 
     /* ========================================================
-       8. PROGRESSION VISIBILITY ENGINE
+       9. PROGRESSIVE EVOLUTION & DEBUG SCRUBBER ENGINE
        ======================================================== */
     function updateGameWidgets(dayVal) {
-      document.getElementById("synthWidget").style.display = dayVal >= 1.0 ? "block" : "none";
-      document.getElementById("scratchWidget").style.display = dayVal >= 3.0 ? "block" : "none";
-      document.getElementById("polaroidWidget").style.display = dayVal >= 5.0 ? "block" : "none";
-      document.getElementById("doodleWidget").style.display = dayVal >= 8.0 ? "block" : "none";
-      document.getElementById("pinataWidget").style.display = dayVal >= 11.0 ? "block" : "none";
+      const synth = document.getElementById("synthWidget");
+      const scratch = document.getElementById("scratchWidget");
+      const polaroid = document.getElementById("polaroidWidget");
+      const doodle = document.getElementById("doodleWidget");
+      const pinata = document.getElementById("pinataWidget");
+
+      if (synth) synth.style.display = dayVal >= 1.0 ? "block" : "none";
+      if (scratch) scratch.style.display = dayVal >= 3.0 ? "block" : "none";
+      if (polaroid) polaroid.style.display = dayVal >= 5.0 ? "block" : "none";
+      if (doodle) doodle.style.display = dayVal >= 8.0 ? "block" : "none";
+      if (pinata) pinata.style.display = dayVal >= 11.0 ? "block" : "none";
     }
 
-    /* ========================================================
-       9. COUNTDOWN & CELEBRATION (NO AUTO-REDIRECT)
-       ======================================================== */
-    const currentYear = new Date().getFullYear();
-    const targetDate = new Date(currentYear, 8, 14, 0, 0, 0); // Sept 14, 00:00:00
-    const startDate  = new Date(currentYear, 7, 31, 0, 0, 0); // Aug 31
-
-    let birthdayTriggered = false;
-    let cannonInterval = null;
-
-    function checkLiveCountdown() {
-      const now = new Date();
-      const diff = targetDate - now;
-
-      if (diff <= 0) {
-        document.getElementById("days").textContent = "00";
-        document.getElementById("hours").textContent = "00";
-        document.getElementById("minutes").textContent = "00";
-        document.getElementById("seconds").textContent = "00";
-        
-        if (!birthdayTriggered) {
-          triggerBirthdayCelebration();
-        }
-        return;
-      }
-
-      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const m = Math.floor((diff / 1000 / 60) % 60);
-      const s = Math.floor((diff / 1000) % 60);
-
-      document.getElementById("days").textContent = String(d).padStart(2, "0");
-      document.getElementById("hours").textContent = String(h).padStart(2, "0");
-      document.getElementById("minutes").textContent = String(m).padStart(2, "0");
-      document.getElementById("seconds").textContent = String(s).padStart(2, "0");
-    }
-
-    setInterval(checkLiveCountdown, 1000);
-    checkLiveCountdown();
-
-    /* ========================================================
-       10. PROGRESSIVE EVOLUTION & CONTINUOUS ENGINE
-       ======================================================== */
     const stageSlider = document.getElementById("stageSlider");
     const stageLabel = document.getElementById("stageLabel");
     const mainTitle = document.getElementById("mainTitle");
@@ -1415,20 +1459,27 @@
     const surpriseBtnContainer = document.getElementById("surpriseBtnContainer");
 
     const retroWidgets = document.getElementById("retroWidgets");
-    const retroWin95Bar = document.getElementById("retroWin95Bar");
-    const retroMarquee = document.getElementById("retroMarquee");
     const retroFooterBadges = document.getElementById("retroFooterBadges");
 
     function calculateRealTimeStage() {
       const now = new Date();
-      const fraction = (now - startDate) / (1000 * 60 * 60 * 24);
+      const fraction = (now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
       return Math.max(0, Math.min(14, fraction));
     }
 
-    function applyContinuousStage(val) {
+    function applyContinuousStage(val, fromUserScrub = false) {
       val = Math.max(0, Math.min(14, parseFloat(val)));
       const root = document.documentElement;
 
+      if (fromUserScrub) {
+        const simulatedMs = startDate.getTime() + (val * 24 * 60 * 60 * 1000);
+        simulatedDate = new Date(simulatedMs);
+      } else {
+        simulatedDate = null;
+      }
+
+      // Update timer immediately
+      updateCountdownDisplay();
       updateGameWidgets(val);
 
       let dateName = "";
@@ -1443,17 +1494,15 @@
         const hour = Math.floor((val % 1) * 24);
         dateName = `Sept ${dayNum} (${hour}:00)`;
       }
-      stageLabel.textContent = dateName;
+      if (stageLabel) stageLabel.textContent = dateName;
 
       // ========================================================
       // VERSION 1 SCRAPPY: AUG 31 TO SEPT 3
       // ========================================================
       if (val < 4.0) {
-        retroWidgets.style.display = "block";
-        retroWin95Bar.style.display = "flex";
-        retroMarquee.style.display = "block";
-        retroFooterBadges.style.display = "block";
-        surpriseBtnContainer.style.display = "none";
+        if (retroWidgets) retroWidgets.style.display = "block";
+        if (retroFooterBadges) retroFooterBadges.style.display = "block";
+        if (surpriseBtnContainer) surpriseBtnContainer.style.display = "none";
 
         root.style.setProperty("--bg-color", "#008080");
         root.style.setProperty("--card-bg", "#c0c0c0");
@@ -1475,19 +1524,21 @@
         root.style.setProperty("--decor-opacity", "0");
         root.style.setProperty("--decor-scale", "0.7");
 
-        mainTitle.textContent = "🕷️ Milly's B-Day Countdown 🕸️";
-        if (val < 1.0) {
-          statusMessage.innerHTML = "🚧 <i>Version 1 Scrappy Mode active! Interactive toys unlock daily!</i> 💾";
-        } else {
-          statusMessage.innerHTML = `🚧 <i>Sept ${Math.floor(val)}: Scrappy v1 active. Try the unlocked mini-games!</i> 💾`;
+        if (mainTitle) mainTitle.textContent = "🕷️ Milly's B-Day Countdown 🕸️";
+        if (statusMessage) {
+          if (val < 1.0) {
+            statusMessage.innerHTML = "🚧 <i>Version 1 Scrappy Mode active! Interactive surprises unlock daily!</i> 💾";
+          } else {
+            statusMessage.innerHTML = `🚧 <i>Sept ${Math.floor(val)}: Scrappy v1 active. Try the unlocked mini-games!</i> 💾`;
+          }
         }
       }
       // ========================================================
       // PROGRESSIVE EVOLUTION: SEPT 4 TO SEPT 14
       // ========================================================
       else {
-        retroWidgets.style.display = "none";
-        retroFooterBadges.style.display = "none";
+        if (retroWidgets) retroWidgets.style.display = "none";
+        if (retroFooterBadges) retroFooterBadges.style.display = "none";
 
         const p = (val - 4.0) / 10.0;
 
@@ -1518,59 +1569,61 @@
         root.style.setProperty("--bg-color", `linear-gradient(135deg, #fff0f3 ${Math.round(100 - p * 50)}%, #e6f0fa 100%)`);
 
         if (val < 9.0) {
-          surpriseBtnContainer.style.display = "none";
+          if (surpriseBtnContainer) surpriseBtnContainer.style.display = "none";
           root.style.setProperty("--font-heading", '"Outfit", sans-serif');
           root.style.setProperty("--font-body", '"Plus Jakarta Sans", sans-serif');
           root.style.setProperty("--font-numbers", '"Outfit", sans-serif');
-          mainTitle.textContent = "🕸️ Milly's Birthday Countdown ✨";
-          statusMessage.innerHTML = `✨ <i>Glow-up Phase Active! Stage ${(val).toFixed(1)} / 14</i> 💕`;
+          if (mainTitle) mainTitle.textContent = "🕸️ Milly's Birthday Countdown ✨";
+          if (statusMessage) statusMessage.innerHTML = `✨ <i>Glow-up Phase Active! Stage ${(val).toFixed(1)} / 14</i> 💕`;
         } else if (val < 12.0) {
-          surpriseBtnContainer.style.display = "none";
+          if (surpriseBtnContainer) surpriseBtnContainer.style.display = "none";
           root.style.setProperty("--font-heading", '"Outfit", sans-serif');
           root.style.setProperty("--font-body", '"Plus Jakarta Sans", sans-serif');
           root.style.setProperty("--font-numbers", '"Outfit", sans-serif');
-          mainTitle.textContent = "🎈 Milly's Birthday Countdown! 🎉";
-          statusMessage.innerHTML = "🎁 <i>Balloons arriving! Try your drawing studio & polaroid!</i> 🎈";
+          if (mainTitle) mainTitle.textContent = "🎈 Milly's Birthday Countdown! 🎉";
+          if (statusMessage) statusMessage.innerHTML = "🎁 <i>Balloons arriving! Try your drawing studio & polaroid!</i> 🎈";
         } else if (val < 14.0) {
-          surpriseBtnContainer.style.display = "none";
+          if (surpriseBtnContainer) surpriseBtnContainer.style.display = "none";
           root.style.setProperty("--font-heading", '"Calistoga", cursive');
           root.style.setProperty("--font-body", '"Plus Jakarta Sans", sans-serif');
           root.style.setProperty("--font-numbers", '"Outfit", sans-serif');
-          mainTitle.textContent = "🎉 Milly's Birthday Season! 🎂";
-          statusMessage.innerHTML = "✨ <b>Zero cobwebs left! Pure birthday magic for Milly!</b> 💖";
+          if (mainTitle) mainTitle.textContent = "🎉 Milly's Birthday Season! 🎂";
+          if (statusMessage) statusMessage.innerHTML = "✨ <b>Zero cobwebs left! Pure birthday magic for Milly!</b> 💖";
         } else {
           root.style.setProperty("--font-heading", '"Calistoga", cursive');
           root.style.setProperty("--font-body", '"Plus Jakarta Sans", sans-serif');
           root.style.setProperty("--font-numbers", '"Outfit", sans-serif');
-          mainTitle.textContent = "🎉 HAPPY BIRTHDAY MILLY! 🎂";
-          statusMessage.innerHTML = "✨ <b>All interactive games unlocked! Open your final surprise below!</b> 💖";
-          surpriseBtnContainer.style.display = "block";
+          if (mainTitle) mainTitle.textContent = "🎉 HAPPY BIRTHDAY MILLY! 🎂";
+          if (statusMessage) statusMessage.innerHTML = "✨ <b>All interactive games unlocked! Open your final surprise below!</b> 💖";
+          if (surpriseBtnContainer) surpriseBtnContainer.style.display = "block";
         }
       }
     }
 
     const initialStage = calculateRealTimeStage();
-    stageSlider.value = initialStage;
-    applyContinuousStage(initialStage);
-
-    stageSlider.addEventListener("input", (e) => applyContinuousStage(e.target.value));
+    if (stageSlider) {
+      stageSlider.value = initialStage;
+      stageSlider.addEventListener("input", (e) => applyContinuousStage(e.target.value, true));
+    }
+    applyContinuousStage(initialStage, false);
 
     window.jumpToStage = function(val) {
-      stageSlider.value = val;
-      applyContinuousStage(val);
+      if (stageSlider) stageSlider.value = val;
+      applyContinuousStage(val, true);
       if (val >= 14) {
         triggerBirthdayCelebration();
       }
     };
 
     /* ========================================================
-       11. SECRET KEY SEQUENCE DETECTOR ('1' -> '8' -> 'Enter')
+       10. SECRET KEY SEQUENCE DETECTOR ('1' -> '8' -> 'Enter')
        ======================================================== */
     let keySeq = [];
     let keySeqTimeout = null;
     const testToolbar = document.getElementById("testToolbar");
 
     function toggleDebugMenu() {
+      if (!testToolbar) return;
       if (testToolbar.style.display === "flex") {
         testToolbar.style.display = "none";
       } else {
@@ -1595,13 +1648,14 @@
     });
 
     /* ========================================================
-       12. CANNON-ANGLED CONFETTI ENGINE (Ribbons, Hearts & Stars)
+       11. CANNON-ANGLED CONFETTI ENGINE
        ======================================================== */
     const canvas = document.getElementById("confetti-canvas");
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas ? canvas.getContext("2d") : null;
     let confettiParticles = [];
 
     function resizeCanvas() {
+      if (!canvas) return;
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
@@ -1634,6 +1688,7 @@
     }
 
     function renderConfetti() {
+      if (!ctx || !canvas) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       confettiParticles.forEach((p, idx) => {
@@ -1659,14 +1714,6 @@
           ctx.bezierCurveTo(-s, -s, -s, s, 0, s * 1.5);
           ctx.bezierCurveTo(s, s, s, -s, 0, s / 2);
           ctx.fill();
-        } else if (p.shape === "star") {
-          ctx.beginPath();
-          for (let i = 0; i < 5; i++) {
-            ctx.lineTo(Math.cos((18 + i * 72) * Math.PI / 180) * p.size, -Math.sin((18 + i * 72) * Math.PI / 180) * p.size);
-            ctx.lineTo(Math.cos((54 + i * 72) * Math.PI / 180) * (p.size/2), -Math.sin((54 + i * 72) * Math.PI / 180) * (p.size/2));
-          }
-          ctx.closePath();
-          ctx.fill();
         } else {
           ctx.fillRect(-p.size / 2, -p.size / 3, p.size, p.size * 0.6);
         }
@@ -1685,7 +1732,7 @@
 
     window.triggerBirthdayCelebration = function() {
       birthdayTriggered = true;
-      surpriseBtnContainer.style.display = "block";
+      if (surpriseBtnContainer) surpriseBtnContainer.style.display = "block";
       
       fireAngledCannon(window.innerWidth * 0.05, window.innerHeight * 0.95, -60, 120);
       fireAngledCannon(window.innerWidth * 0.95, window.innerHeight * 0.95, -120, 120);
@@ -1700,11 +1747,14 @@
     };
 
     // Card click sparkler
-    document.getElementById("mainCard").addEventListener("click", (e) => {
-      if (e.target.closest("#bigSurpriseBtn") || e.target.closest(".game-card")) return;
-      fireAngledCannon(e.clientX, e.clientY, -90, 25);
-      renderConfetti();
-    });
+    const mainCard = document.getElementById("mainCard");
+    if (mainCard) {
+      mainCard.addEventListener("click", (e) => {
+        if (e.target.closest("#bigSurpriseBtn") || e.target.closest(".game-card")) return;
+        fireAngledCannon(e.clientX, e.clientY, -90, 25);
+        renderConfetti();
+      });
+    }
   </script>
 </body>
 </html>
